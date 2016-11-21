@@ -1,7 +1,6 @@
-
 auth.js
-
-
+*~
+build/*
+cache/*
 closure-library/*
-
 node_modules/*
