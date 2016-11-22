@@ -58,12 +58,12 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
 
   // Black shader for wireframe
   this.blackShader = new GL.Shader('' +
-    'void main() {' +
+      'void main() {' +
       'gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;' +
-    '}', '' +
-    'void main() {' +
+      '}', '' +
+      'void main() {' +
       'gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1);' +
-    '}');
+      '}');
 
   // Shader with diffuse and specular lighting
   this.lightingShader = new GL.Shader('' +
@@ -72,87 +72,87 @@ Blockscad.Viewer = function(containerelement, width, height, initialdepth) {
       'varying vec3 normal;' +
       'varying vec3 light;' +
       'void main() {' +
-        'const vec3 lightDir = vec3(1.0, 2.0, 3.0) / 3.741657386773941;' +
-        'light = lightDir;' +
-        'color = gl_Color.rgb;' +
-        'alpha = gl_Color.a;' +
-        'normal = gl_NormalMatrix * gl_Normal;' +
-        'gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;' +
+      'const vec3 lightDir = vec3(1.0, 2.0, 3.0) / 3.741657386773941;' +
+      'light = lightDir;' +
+      'color = gl_Color.rgb;' +
+      'alpha = gl_Color.a;' +
+      'normal = gl_NormalMatrix * gl_Normal;' +
+      'gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;' +
       '}',
       'varying vec3 color;' +
       'varying float alpha;' +
       'varying vec3 normal;' +
       'varying vec3 light;' +
       'void main() {' +
-        'vec3 n = normalize(normal);' +
-        'float diffuse = max(0.0, dot(light, n));' +
-        'float specular = pow(max(0.0, -reflect(light, n).z), 18.0) * sqrt(diffuse);' +
-        'gl_FragColor = vec4(mix(color * (0.3 + 0.7 * diffuse), vec3(1.0), specular), alpha);' +
+      'vec3 n = normalize(normal);' +
+      'float diffuse = max(0.0, dot(light, n));' +
+      'float specular = pow(max(0.0, -reflect(light, n).z), 18.0) * sqrt(diffuse);' +
+      'gl_FragColor = vec4(mix(color * (0.3 + 0.7 * diffuse), vec3(1.0), specular), alpha);' +
       '}');
 
   var _this=this;
 
   var shiftControl = $('<div class="shift-scene"><div class="arrow arrow-left" />' +
-    '<div class="arrow arrow-right" />' +
-    '<div class="arrow arrow-top" />' +
-    '<div class="arrow arrow-bottom" /></div>' );
+      '<div class="arrow arrow-right" />' +
+      '<div class="arrow arrow-top" />' +
+      '<div class="arrow arrow-bottom" /></div>' );
   this.touch.shiftControl = shiftControl;
 
   $(containerelement).append(gl.canvas)
-    .append(shiftControl)
-    .hammer({//touch screen control
-      drag_lock_to_axis: true
-    }).on("transform", function(e){
-      if (e.gesture.touches.length >= 2) {
-          _this.clearShift();
-          _this.onTransform(e);
-          e.preventDefault();
-      }
-    }).on("touch", function(e) {
-      if (e.gesture.pointerType != 'touch'){
-        e.preventDefault();
-        return;
-      }
+      .append(shiftControl)
+      .hammer({//touch screen control
+        drag_lock_to_axis: true
+      }).on("transform", function(e){
+    if (e.gesture.touches.length >= 2) {
+      _this.clearShift();
+      _this.onTransform(e);
+      e.preventDefault();
+    }
+  }).on("touch", function(e) {
+    if (e.gesture.pointerType != 'touch'){
+      e.preventDefault();
+      return;
+    }
 
-      if (e.gesture.touches.length == 1) {
-          var point = e.gesture.center;
-          _this.touch.shiftTimer = setTimeout(function(){
-              shiftControl.addClass('active').css({
-                  left: point.pageX + 'px',
-                  top: point.pageY + 'px'
-              });
-              _this.touch.shiftTimer = null;
-              _this.touch.cur = 'shifting';
-        }, 500);
-      } else {
-        _this.clearShift();
-      }
-    }).on("drag", function(e) {
-      if (e.gesture.pointerType != 'touch') {
-        e.preventDefault();
-        return;
-      }
+    if (e.gesture.touches.length == 1) {
+      var point = e.gesture.center;
+      _this.touch.shiftTimer = setTimeout(function(){
+        shiftControl.addClass('active').css({
+          left: point.pageX + 'px',
+          top: point.pageY + 'px'
+        });
+        _this.touch.shiftTimer = null;
+        _this.touch.cur = 'shifting';
+      }, 500);
+    } else {
+      _this.clearShift();
+    }
+  }).on("drag", function(e) {
+    if (e.gesture.pointerType != 'touch') {
+      e.preventDefault();
+      return;
+    }
 
-      if (!_this.touch.cur || _this.touch.cur == 'dragging') {
-          _this.clearShift();
-          _this.onPanTilt(e);
-      } else if (_this.touch.cur == 'shifting') {
-          _this.onShift(e);
-      }
-    }).on("touchend", function(e) {
-        _this.clearShift();
-        if (_this.touch.cur) {
-            shiftControl.removeClass('active shift-horizontal shift-vertical');
-        }
-    }).on("transformend dragstart dragend", function(e) {
-      if ((e.type == 'transformend' && _this.touch.cur == 'transforming') ||
-          (e.type == 'dragend' && _this.touch.cur == 'shifting') ||
-          (e.type == 'dragend' && _this.touch.cur == 'dragging'))
-        _this.touch.cur = null;
-      _this.touch.lastX = 0;
-      _this.touch.lastY = 0;
-      _this.touch.scale = 0;
-    });
+    if (!_this.touch.cur || _this.touch.cur == 'dragging') {
+      _this.clearShift();
+      _this.onPanTilt(e);
+    } else if (_this.touch.cur == 'shifting') {
+      _this.onShift(e);
+    }
+  }).on("touchend", function(e) {
+    _this.clearShift();
+    if (_this.touch.cur) {
+      shiftControl.removeClass('active shift-horizontal shift-vertical');
+    }
+  }).on("transformend dragstart dragend", function(e) {
+    if ((e.type == 'transformend' && _this.touch.cur == 'transforming') ||
+        (e.type == 'dragend' && _this.touch.cur == 'shifting') ||
+        (e.type == 'dragend' && _this.touch.cur == 'dragging'))
+      _this.touch.cur = null;
+    _this.touch.lastX = 0;
+    _this.touch.lastY = 0;
+    _this.touch.scale = 0;
+  });
 
   gl.onmousemove = function(e) {
     _this.onMouseMove(e);
@@ -188,9 +188,9 @@ Blockscad.Viewer.prototype = {
     // } else {
     //    this.meshes = OpenJsCad.Viewer.csgToMeshes(csg);
     // }
-      this.gl.makeCurrent();
-      this.meshes = Blockscad.Viewer.csgToMeshes(csg,this.defaultColor);
-      this.onDraw();
+    this.gl.makeCurrent();
+    this.meshes = Blockscad.Viewer.csgToMeshes(csg,this.defaultColor);
+    this.onDraw();
   },
 
   rendered_resize: function(width, height) {
@@ -332,7 +332,7 @@ Blockscad.Viewer.prototype = {
       //console.log(e.which,e.button);
       var b = e.button;
       if(e.which) {                            // RANT: not even the mouse buttons are coherent among the brand (chrome,firefox,etc)
-         b = e.which;
+        b = e.which;
       }
       e.preventDefault();
       if(e.altKey||b==3) {                     // ROTATE X,Y (ALT or right mouse button)
@@ -344,10 +344,10 @@ Blockscad.Viewer.prototype = {
         this.viewpointX += factor * e.deltaX * this.viewpointZ;
         this.viewpointY -= factor * e.deltaY * this.viewpointZ;
       } else if(e.ctrlKey) {                   // ZOOM IN/OU
-         var factor = Math.pow(1.006, e.deltaX+e.deltaY);
-         var coeff = this.getZoom();
-         coeff *= factor;
-         this.setZoom(coeff);
+        var factor = Math.pow(1.006, e.deltaX+e.deltaY);
+        var coeff = this.getZoom();
+        coeff *= factor;
+        this.setZoom(coeff);
       } else {                                 // ROTATE X,Z  left mouse button
         this.angleZ += e.deltaX;
         this.angleX += e.deltaY;
@@ -356,24 +356,24 @@ Blockscad.Viewer.prototype = {
     }
   },
   clearShift: function() {
-      if(this.touch.shiftTimer) {
-          clearTimeout(this.touch.shiftTimer);
-          this.touch.shiftTimer = null;
-      }
-      return this;
+    if(this.touch.shiftTimer) {
+      clearTimeout(this.touch.shiftTimer);
+      this.touch.shiftTimer = null;
+    }
+    return this;
   },
   //pan & tilt with one finger
   onPanTilt: function(e) {
     this.touch.cur = 'dragging';
     var delta = 0;
     if (this.touch.lastY && (e.gesture.direction == 'up' || e.gesture.direction == 'down')) {
-        //tilt
-        delta = e.gesture.deltaY - this.touch.lastY;
-        this.angleX += delta;
+      //tilt
+      delta = e.gesture.deltaY - this.touch.lastY;
+      this.angleX += delta;
     } else if (this.touch.lastX && (e.gesture.direction == 'left' || e.gesture.direction == 'right')) {
-        //pan
-        delta = e.gesture.deltaX - this.touch.lastX;
-        this.angleZ += delta;
+      //pan
+      delta = e.gesture.deltaX - this.touch.lastX;
+      this.angleZ += delta;
     }
     if (delta)
       this.onDraw();
@@ -387,22 +387,22 @@ Blockscad.Viewer.prototype = {
     var delta = 0;
 
     if (this.touch.lastY && (e.gesture.direction == 'up' || e.gesture.direction == 'down')) {
-        this.touch.shiftControl
+      this.touch.shiftControl
           .removeClass('shift-horizontal')
           .addClass('shift-vertical')
           .css('top', e.gesture.center.pageY + 'px');
-        delta = e.gesture.deltaY - this.touch.lastY;
-        this.viewpointY -= factor * delta * this.viewpointZ;
-        this.angleX += delta;
+      delta = e.gesture.deltaY - this.touch.lastY;
+      this.viewpointY -= factor * delta * this.viewpointZ;
+      this.angleX += delta;
     }
     if (this.touch.lastX && (e.gesture.direction == 'left' || e.gesture.direction == 'right')) {
-        this.touch.shiftControl
+      this.touch.shiftControl
           .removeClass('shift-vertical')
           .addClass('shift-horizontal')
           .css('left', e.gesture.center.pageX + 'px');
-        delta = e.gesture.deltaX - this.touch.lastX;
-        this.viewpointX += factor * delta * this.viewpointZ;
-        this.angleZ += delta;
+      delta = e.gesture.deltaX - this.touch.lastX;
+      this.viewpointX += factor * delta * this.viewpointZ;
+      this.angleZ += delta;
     }
     if (delta)
       this.onDraw();
@@ -411,15 +411,15 @@ Blockscad.Viewer.prototype = {
   },
   //zooming
   onTransform: function(e) {
-      this.touch.cur = 'transforming';
-      if (this.touch.scale) {
-        var factor = 1 / (1 + e.gesture.scale - this.touch.scale);
-        var coeff = this.getZoom();
-        coeff *= factor;
-        this.setZoom( coeff);
-      }
-      this.touch.scale = e.gesture.scale;
-      return this;
+    this.touch.cur = 'transforming';
+    if (this.touch.scale) {
+      var factor = 1 / (1 + e.gesture.scale - this.touch.scale);
+      var coeff = this.getZoom();
+      coeff *= factor;
+      this.setZoom( coeff);
+    }
+    this.touch.scale = e.gesture.scale;
+    return this;
   },
   onDraw: function(takePic,angle,camera) {
     var gl = this.gl;
@@ -431,32 +431,32 @@ Blockscad.Viewer.prototype = {
       gl.clearColor(1,1,1, 1);
 
     if (takePic && this.meshes[0]) {
-    // I need to find out size and position of the object and position the camera accordingly.
+      // I need to find out size and position of the object and position the camera accordingly.
 
-    // angle (in radians) of how far I've rotated around my object.
-    // console.log("this",this);
+      // angle (in radians) of how far I've rotated around my object.
+      // console.log("this",this);
 
-    angle += 3*Math.PI/4;
-    var bsph = this.bsph;
-    var bbox = this.bbox;   // use bbox to see if this is a flat project or a tall one.
+      angle += 3*Math.PI/4;
+      var bsph = this.bsph;
+      var bbox = this.bbox;   // use bbox to see if this is a flat project or a tall one.
 
-    // console.log(bbox);
-    // var tallness = 1.2 ;
-    var tallness = 1.3 - (bbox[1].z - bbox[0].z)/(2*bsph.radius);
+      // console.log(bbox);
+      // var tallness = 1.2 ;
+      var tallness = 1.3 - (bbox[1].z - bbox[0].z)/(2*bsph.radius);
 
-    var r = 2.6 * bsph.radius;
-    gl.matrixMode(gl.PROJECTION);
-    gl.loadIdentity();
-    gl.perspective(45,gl.canvas.width / gl.canvas.height,1,3000);
-    gl.matrixMode(gl.MODELVIEW);
-    gl.loadIdentity();
-    gl.lookAt(bsph.center.x + r * Math.sin(angle), bsph.center.y + r * Math.cos(angle), bsph.center.z + tallness*r/2,
-              bsph.center.x, bsph.center.y, bsph.center.z, 0,0,1);
+      var r = 2.6 * bsph.radius;
+      gl.matrixMode(gl.PROJECTION);
+      gl.loadIdentity();
+      gl.perspective(45,gl.canvas.width / gl.canvas.height,1,3000);
+      gl.matrixMode(gl.MODELVIEW);
+      gl.loadIdentity();
+      gl.lookAt(bsph.center.x + r * Math.sin(angle), bsph.center.y + r * Math.cos(angle), bsph.center.z + tallness*r/2,
+          bsph.center.x, bsph.center.y, bsph.center.z, 0,0,1);
     }
 
     else {
       // console.log("setting normal camera position and angle");
-    // these values were getting corrupted in the picDiv.  Don't know why.
+      // these values were getting corrupted in the picDiv.  Don't know why.
       gl.matrixMode(gl.PROJECTION);
       gl.loadIdentity();
       gl.perspective(45, gl.canvas.width / gl.canvas.height, 1, 3000);
@@ -512,60 +512,60 @@ Blockscad.Viewer.prototype = {
       //console.log("plate is:",plate);
       var plate = 200;
       if(this.plate) {
-         gl.color(0.8,0.8,0.8,0.5); // -- minor grid
-         for(var x=-plate/2; x<=plate/2; x++) {
-            if(x%10 && x!==0) {
-               gl.vertex(-plate/2, x, 0);
-               gl.vertex(plate/2, x, 0);
-               gl.vertex(x, -plate/2, 0);
-               gl.vertex(x, plate/2, 0);
+        gl.color(0.8,0.8,0.8,0.5); // -- minor grid
+        for(var x=-plate/2; x<=plate/2; x++) {
+          if(x%10 && x!==0) {
+            gl.vertex(-plate/2, x, 0);
+            gl.vertex(plate/2, x, 0);
+            gl.vertex(x, -plate/2, 0);
+            gl.vertex(x, plate/2, 0);
 
-               // hashmarks on z-axis
-               if (x < plate/2.8 && x > -plate/2.8) {
-                 gl.vertex(-0.5, 0, x);
-                 gl.vertex(0.5, 0, x);
-                 gl.vertex(0, -0.50, x);
-                 gl.vertex(0, 0.50, x);
-               }
+            // hashmarks on z-axis
+            if (x < plate/2.8 && x > -plate/2.8) {
+              gl.vertex(-0.5, 0, x);
+              gl.vertex(0.5, 0, x);
+              gl.vertex(0, -0.50, x);
+              gl.vertex(0, 0.50, x);
             }
-         }
-         gl.color(0.5,0.5,0.5,0.5); // -- major grid
-         for(var x=10; x<=plate/2; x+=10) {
-            if(x!==0) {
-              gl.vertex(-plate/2, x, 0);
-              gl.vertex(plate/2, x, 0);
-              gl.vertex(x, -plate/2, 0);
-              gl.vertex(x, plate/2, 0);
-              gl.vertex(-plate/2, -x, 0);
-              gl.vertex(plate/2, -x, 0);
-              gl.vertex(-x, -plate/2, 0);
-              gl.vertex(-x, plate/2, 0);
-
-              // hashmarks on z-axis
-              if (x < plate/2.8 ) {
-                gl.vertex(-1, 0, x);
-                gl.vertex(1, 0, x);
-                gl.vertex(0, -1, x);
-                gl.vertex(0, 1, x);
-                gl.vertex(-1, 0, -x);
-                gl.vertex(1, 0, -x);
-                gl.vertex(0, -1, -x);
-                gl.vertex(0, 1, -x);
-              }
           }
-         }
+        }
+        gl.color(0.5,0.5,0.5,0.5); // -- major grid
+        for(var x=10; x<=plate/2; x+=10) {
+          if(x!==0) {
+            gl.vertex(-plate/2, x, 0);
+            gl.vertex(plate/2, x, 0);
+            gl.vertex(x, -plate/2, 0);
+            gl.vertex(x, plate/2, 0);
+            gl.vertex(-plate/2, -x, 0);
+            gl.vertex(plate/2, -x, 0);
+            gl.vertex(-x, -plate/2, 0);
+            gl.vertex(-x, plate/2, 0);
+
+            // hashmarks on z-axis
+            if (x < plate/2.8 ) {
+              gl.vertex(-1, 0, x);
+              gl.vertex(1, 0, x);
+              gl.vertex(0, -1, x);
+              gl.vertex(0, 1, x);
+              gl.vertex(-1, 0, -x);
+              gl.vertex(1, 0, -x);
+              gl.vertex(0, -1, -x);
+              gl.vertex(0, 1, -x);
+            }
+          }
+        }
       }
 
       // JY - set alpha for axes color to 1 to make the colors more obvious, and changed colors.
       if(1) {
-         //X - red
+        //X - red
 
 
         gl.color(1, 0, 0, 1); //positive direction
         gl.vertex(0, 0, 0);
         gl.vertex(plate/2, 0, 0);
 
-         // I'd like to try making the negative direction dashed
+        // I'd like to try making the negative direction dashed
         for (var i=-plate/2; i < 0; i++) {
           if (i%2) {
             gl.vertex(i,0,0);
@@ -573,7 +573,7 @@ Blockscad.Viewer.prototype = {
           }
         }
 
-         //Y - green
+        //Y - green
 
         gl.color(0, 0.7, 0, 1); //positive direction
         gl.vertex(0, 0, 0);
@@ -674,12 +674,12 @@ Blockscad.Viewer.prototype = {
   // quality is the jpeg quality level (between 0 and 1).  Note that a value of 0
   // won't take a pic at all, because it is used as a true/false to take the pic.
   takePic: function(quality, angle) {
-      return this.onDraw(quality, angle);
+    return this.onDraw(quality, angle);
   },
 
   // new function for taking a screen shot
   takeCameraPic: function(quality) {
-      return this.onDraw(0,0,quality);
+    return this.onDraw(0,0,quality);
   }
 
 
@@ -712,8 +712,8 @@ Blockscad.Viewer.csgToMeshes = function(initial_csg, defaultColor) {
       color = polygon.color;
     }
 
-	if (color.length < 4)
-		color.push(1.0); //opaque
+    if (color.length < 4)
+      color.push(1.0); //opaque
 
     var indices = polygon.vertices.map(function(vertex) {
       var vertextag = vertex.getTag();
@@ -801,18 +801,18 @@ Blockscad.runMainInWorker = function() {
       throw new Error("Nothing to Render!");
     }
     else if(result.length) {                   // main() return an array, we consider it a bunch of CSG not intersecting
-       var o = result[0];
-       if(o instanceof CAG) {
-          o = o.extrude({offset: [0,0,0.1]});
-       }
-       for(var i=1; i<result.length; i++) {
-          var c = result[i];
-          if(c instanceof CAG) {
-             c = c.extrude({offset: [0,0,0.1]});
-          }
-          o = o.unionForNonIntersecting(c);
-       }
-       result = o;
+      var o = result[0];
+      if(o instanceof CAG) {
+        o = o.extrude({offset: [0,0,0.1]});
+      }
+      for(var i=1; i<result.length; i++) {
+        var c = result[i];
+        if(c instanceof CAG) {
+          c = c.extrude({offset: [0,0,0.1]});
+        }
+        o = o.unionForNonIntersecting(c);
+      }
+      result = o;
     }
     var result_compact = result.toCompactBinary();
     result = null; // not needed anymore
@@ -836,33 +836,33 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // 3) _csg_libraries.push(fn) provides only 1 level include()
 
   workerscript += "function include(fn) {" +
-  "if(0) {" +
-    "_csg_libraries.push(fn);" +
-  "} else if(0) {" +
-    "var url = _includePath!=='undefined'?_includePath:'./';" +
-    "var index = url.indexOf('index.html');" +
-    "if(index!=-1) {" +
-       "url = url.substring(0,index);" +
-    "}" +
-  	 "importScripts(url+fn);" +
-  "} else {" +
-   // "console.log('SYNC checking gMemFs for '+fn);" +
-   // "if(gMemFs[fn]) {" +
-   //    "console.log('found locally & eval:',gMemFs[fn].name);" +
-   //    "eval(gMemFs[fn].source); return;" +
-   // "}" +
-   "var xhr = new XMLHttpRequest();" +
-   "xhr.open('GET',_includePath+fn,false);" +
-   "console.log('include:'+_includePath+fn);" +
-   "xhr.onload = function() {" +
+      "if(0) {" +
+      "_csg_libraries.push(fn);" +
+      "} else if(0) {" +
+      "var url = _includePath!=='undefined'?_includePath:'./';" +
+      "var index = url.indexOf('index.html');" +
+      "if(index!=-1) {" +
+      "url = url.substring(0,index);" +
+      "}" +
+      "importScripts(url+fn);" +
+      "} else {" +
+      // "console.log('SYNC checking gMemFs for '+fn);" +
+      // "if(gMemFs[fn]) {" +
+      //    "console.log('found locally & eval:',gMemFs[fn].name);" +
+      //    "eval(gMemFs[fn].source); return;" +
+      // "}" +
+      "var xhr = new XMLHttpRequest();" +
+      "xhr.open('GET',_includePath+fn,false);" +
+      "console.log('include:'+_includePath+fn);" +
+      "xhr.onload = function() {" +
       "var src = this.responseText;" +
       "eval(src);" +
-   "};" +
-   "xhr.onerror = function() {" +
-   "};" +
-   "xhr.send();" +
-  "}" +
-"}";
+      "};" +
+      "xhr.onerror = function() {" +
+      "};" +
+      "xhr.send();" +
+      "}" +
+      "}";
 
   var f = new Function(workerscript);
 
@@ -873,9 +873,9 @@ Blockscad.parseBlockscadScriptSync = function(script, debugging) {
 // callback: should be function(error, csg)
 Blockscad.parseBlockscadScriptASync = function(script, callback) {
   var baselibraries = [
-      "blockscad/viewer_compressed.js"
-      // "blockscad/csg.js",
-      // "blockscad/viewer.js"
+    "blockscad/viewer_compressed.js"
+    // "blockscad/csg.js",
+    // "blockscad/viewer.js"
   ];
 
   // console.log("in parseBlockscadScriptASync");
@@ -915,7 +915,7 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   // if(ignoreInclude) {
   //    // workerscript += "eval(gMemFs['"+mainFile+"']);\n";
   // } else {
-     workerscript += script;
+  workerscript += script;
   // }
   workerscript += "\n\n\n\n//// The following code was added by OpenJsCad + OpenJSCAD.org:\n";
 
@@ -971,7 +971,7 @@ Blockscad.parseBlockscadScriptASync = function(script, callback) {
   //workerscript += "function includePath(p) { _includePath = p; }\n";
   var blobURL = Blockscad.textToBlobUrl(workerscript);
   // console.log("blobURL",blobURL);
-   // console.log("workerscript",workerscript);
+  // console.log("workerscript",workerscript);
 
   if(!window.Worker) throw new Error("Your browser doesn't support Web Workers. Please try the Chrome or Firefox browser instead.");
   var worker = new Worker(blobURL);
@@ -1082,7 +1082,7 @@ Blockscad.Processor.convertToSolid = function(obj) {
     console.log("putting them together");
     var o = obj[0];
     for(var i=1; i<obj.length; i++) {
-       o = o.unionForNonIntersecting(obj[i]);
+      o = o.unionForNonIntersecting(obj[i]);
     }
     obj = o;
 
@@ -1096,15 +1096,15 @@ Blockscad.Processor.prototype = {
   createElements: function() {
     var that = this;   // for event handlers
 
-   // JY - I added a "reset view" button.
-   // now, the container (content-render) HAS A CHILD FROM THE REST OF THE HTML (my reset view button)
-   // this code throws an error if I try to throw that child away. SO, I always leave the first
-   // child.
-   // JY - now there are lots of children - these are the resizable div's handles and such.  Argh! Leave 5.
+    // JY - I added a "reset view" button.
+    // now, the container (content-render) HAS A CHILD FROM THE REST OF THE HTML (my reset view button)
+    // this code throws an error if I try to throw that child away. SO, I always leave the first
+    // child.
+    // JY - now there are lots of children - these are the resizable div's handles and such.  Argh! Leave 5.
     while(this.containerdiv.children.length > 7)
-      {
-        this.containerdiv.removeChild(7);
-      }
+    {
+      this.containerdiv.removeChild(7);
+    }
 
     var viewerdiv = document.createElement("div");
     viewerdiv.style.width = '100%';
@@ -1190,7 +1190,166 @@ Blockscad.Processor.prototype = {
       }
       var bxml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
       // Need Marcus Magic to save this blob, image and SCAD model (stlFile, thumb & bxml) to an object, then select a printer and load to build plate!
-      alert("Marcus Magic Here!");
+
+      // get header auth
+      var startingAuthIndex = document.cookie.indexOf('token=') + 6;
+      var auth = 'Bearer ';
+      if(startingAuthIndex !== 5) {
+        var substr = document.cookie.substring(startingAuthIndex);
+        var endingIndex = substr.indexOf(';');
+        if(endingIndex !== -1) auth += substr.substring(0, endingIndex);
+        else  auth += substr.substring(0);
+      }
+
+      // get header xsrf token
+      var startingXsrfIndex = document.cookie.indexOf('XSRF-TOKEN=') + 11;
+      var xsrfToken = '';
+      if(startingXsrfIndex !== 10) {
+        var substr = document.cookie.substring(startingXsrfIndex);
+        var endingIndex = substr.indexOf(';');
+        if(endingIndex !== -1) xsrfToken += substr.substring(0, endingIndex);
+        else xsrfToken += substr.substring(0);
+      }
+      // create an object
+      var desc = "<p>This is a default description.</p><p>Please put in some effort in descripting it to help other users understand the collection before you make it to public.</p>";
+      var newObject = {
+        name: 'New Object',
+        description: desc
+      };
+
+      var _beforeSend = function(xhr) {
+        xhr.setRequestHeader('Authorization', auth);
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.setRequestHeader('X-XSRF-TOKEN', decodeURIComponent(xsrfToken));
+      };
+
+      var _dataURItoBlob = function(dataURI) {
+        var binary = atob(dataURI.split(',')[1]);
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        var array = [];
+        for (var i = 0; i < binary.length; i++) {
+          array.push(binary.charCodeAt(i));
+        }
+        return new Blob([new Uint8Array(array)], {type: mimeString});
+      };
+
+      // update object
+      var _updateObject = function() {
+        var stl = signedUrls.stl[0], photo = signedUrls.photo[0];
+
+        var newPart = {
+          file_url: stl.public_url,
+          name: 'blockscad.stl',
+          photo_url: photo.public_url,
+          size: stlFile.size
+        };
+
+        // update part first
+        $.ajax({
+          url: "/api/objects/" + objectId + "/change_files",
+          type: "PUT",
+          data: JSON.stringify(newPart),
+          beforeSend: _beforeSend,
+          success: function() {
+            // update photo the last and navigate because it doesn't matter if it successes or not
+            var newPhoto = {
+              photo_thumbnail_url: photo.public_url,
+              photo_url: photo.public_url
+            };
+
+            $.ajax({
+              url: "/api/objects/" + objectId + "/change_photos",
+              type: "PUT",
+              data: JSON.stringify(newPhoto),
+              beforeSend: _beforeSend
+            });
+
+            $.ajax({
+              url: "/api/printers/",
+              type: "GET",
+              data: JSON.stringify(newPhoto),
+              beforeSend: _beforeSend,
+              success: function(printers) {
+                var printerId = 'default';
+                if(printers.length > 0){
+                  printerId = printers[0]._id;
+                }
+                // navigate to build plate
+                window.location.href = '/build-plate/' + printerId
+                    + '?file_url=' + newPart.file_url
+                    + '&name=' + newPart.name
+                    + '&photo_url=' + newPart.photo_url
+                    + '&size=' + newPart.size;
+              }
+            });
+          }
+        });
+      };
+
+      // upload to S3
+      var _uploadToS3 = function() {
+        var stl = signedUrls.stl[0], photo = signedUrls.photo[0];
+        console.log(signedUrls)
+        var photoBlob = _dataURItoBlob(thumb);
+
+        return $.when(
+            $.ajax({
+              url: stl.signed_url,
+              type: "PUT",
+              data: stlFile, // important
+              processData: false, // important
+              contentType: false, // important!
+              beforeSend: function(xhr){
+                xhr.setRequestHeader('Content-Type', stl.content_type);
+              }
+            }),
+            $.ajax({
+              url: photo.signed_url,
+              type: "PUT",
+              data: photoBlob,
+              processData: false, // important
+              contentType: false, // important!
+              beforeSend: function(xhr){
+                xhr.setRequestHeader('Content-Type', photo.content_type);
+              }
+            })
+        ).then(_updateObject);
+      };
+
+      // get singed url
+      var signedUrls = {};
+      var _getSignedUrl = function(d) {
+        objectId = d._id;
+
+        var paramStr_stl = 'ext=blockscad.stl&type=object_part&folder=' + d.folder;
+        var paramStr_photo = '&ext=blockscad.png&type=object_part_photo&folder=' + d.folder;
+
+        return $.when(
+            $.ajax({
+              url: "/api/s3?" + paramStr_stl,
+              type: "GET",
+              beforeSend: _beforeSend,
+              success: function(d) { signedUrls.stl = d; }
+            }),
+            $.ajax({
+              url: "/api/s3?" + paramStr_photo,
+              type: "GET",
+              beforeSend: _beforeSend,
+              success: function(d) { signedUrls.photo = d }
+            })
+        ).then(_uploadToS3);
+      };
+
+      // create object
+      var objectId;
+      $.ajax({
+        url: "/api/objects",
+        type: "POST",
+        data: JSON.stringify(newObject),
+        beforeSend: _beforeSend,
+        success: _getSignedUrl
+      });
+
     };
 
     this.enableItems();
@@ -1299,7 +1458,7 @@ Blockscad.Processor.prototype = {
   setError: function(txt) {
     this.hasError = (txt != "");
     $( "#error-message" ).text(txt);
-   // console.log("in setError with text", txt, "this.hasError is", this.hasError);
+    // console.log("in setError with text", txt, "this.hasError is", this.hasError);
     this.enableItems();
   },
 
@@ -1335,14 +1494,14 @@ Blockscad.Processor.prototype = {
       try
       {
 //          console.log("trying async compute");
-          this.worker = Blockscad.parseBlockscadScriptASync(this.script, function(err, obj) {
+        this.worker = Blockscad.parseBlockscadScriptASync(this.script, function(err, obj) {
           that.processing = false;
           that.worker = null;
           if(err)
           {
-          console.log("error in proc" + err);
-          // alert(err);
-          // console.log("script was:",this.script;
+            console.log("error in proc" + err);
+            // alert(err);
+            // console.log("script was:",this.script;
             that.setError(err);
           }
           else
@@ -1480,32 +1639,32 @@ Blockscad.Processor.prototype = {
         displayName: "STL (ASCII)",
         extension: "stl",
         mimetype: "application/sla",
-        },
+      },
       obj: {
         displayName: "OBJ (ASCII)",
         extension: "obj",
         mimetype: "application/sla",
-        },
+      },
       stlb: {
         displayName: "STL (Binary)",
         extension: "stl",
         mimetype: "application/sla",
-        },
+      },
       amf: {
         displayName: "AMF",
         extension: "amf",
         mimetype: "application/amf+xml",
-        },
+      },
       x3d: {
         displayName: "X3D",
         extension: "x3d",
         mimetype: "model/x3d+xml",
-        },
+      },
       dxf: {
         displayName: "DXF",
         extension: "dxf",
         mimetype: "application/dxf",
-        }
+      }
     }[format];
   },
 
