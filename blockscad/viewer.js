@@ -1271,15 +1271,13 @@ Blockscad.Processor.prototype = {
               beforeSend: _beforeSend,
               success: function(printers) {
                 var printerId = 'default';
+                console.log(printers)
                 if(printers.length > 0){
                   printerId = printers[0]._id;
                 }
                 // navigate to build plate
                 window.location.href = '/build-plate/' + printerId
-                    + '?file_url=' + newPart.file_url
-                    + '&name=' + newPart.name
-                    + '&photo_url=' + newPart.photo_url
-                    + '&size=' + newPart.size;
+                    + '?objectId=' + objectId;
               }
             });
           }
