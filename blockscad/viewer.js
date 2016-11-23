@@ -1271,7 +1271,6 @@ Blockscad.Processor.prototype = {
               beforeSend: _beforeSend,
               success: function(printers) {
                 var printerId = 'default';
-                console.log(printers)
                 if(printers.length > 0){
                   printerId = printers[0]._id;
                 }
